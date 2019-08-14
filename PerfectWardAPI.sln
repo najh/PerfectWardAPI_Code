@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfectWardApi", "PerfectWardAPI\PerfectWardApi.csproj", "{1CAA6D95-E30E-45E9-B4BF-97D5DE8B9132}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PwTask", "ApiTest\PwTask.csproj", "{AF2EE1D0-9EA2-4D57-8BD2-D07F8DDE83AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PwTask", "PwTask\PwTask.csproj", "{AF2EE1D0-9EA2-4D57-8BD2-D07F8DDE83AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSSQLDriver", "PerfectWardMSSQLDriver\MSSQLDriver.csproj", "{DF3BB7A1-8D9C-4840-9C93-1377AFE2E901}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfectWard API Connector", "Installer\PerfectWard API Connector.csproj", "{66ED3C0E-7927-4832-937C-841978268E79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfectWard API Connector", "Connector\PerfectWard API Connector.csproj", "{66ED3C0E-7927-4832-937C-841978268E79}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
