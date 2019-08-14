@@ -1,0 +1,6 @@
+.vs
+_INSTALL_BUILD
+/*/obj
+/*/bin
+bin
+packages/*
