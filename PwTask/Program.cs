@@ -15,6 +15,8 @@ namespace ApiTest
 {
     class Program
     {
+        private const int CLOSE_TIME = 30;
+
         static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledException);
@@ -122,9 +124,13 @@ namespace ApiTest
                 Debug.Log($"Unhandled exception occurred:\n{ex}");
             }
             catch (Exception) { }
-            MessageBox.Show($"Error:\n{ex}");
-            Debug.Log($"Terminating...");
-            Environment.Exit(0);
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(CLOSE_TIME * 1000);
+                Debug.Log($"Terminating...");
+                Environment.Exit(0);
+            });
+            MessageBox.Show($"An error occurred, terminating in {CLOSE_TIME} seconds:\n{ex}");
         }
     }
 }
