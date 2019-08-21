@@ -50,7 +50,7 @@ namespace PerfectWardAPI
         {
             if (LogFolder.Exists)
             {
-                foreach (var f in LogFolder.GetFiles("*_.debug.log"))
+                foreach (var f in LogFolder.GetFiles("*_debug.log"))
                 {
                     f.Delete();
                 }
