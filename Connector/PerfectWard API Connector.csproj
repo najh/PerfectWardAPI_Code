@@ -122,4 +122,7 @@
     <Resource Include="logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy $(SolutionDir)\third_party\NSudo.exe $(TargetDir)\NSudo.exe</PostBuildEvent>
+  </PropertyGroup>
 </Project>

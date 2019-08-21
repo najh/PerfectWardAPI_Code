@@ -7,6 +7,7 @@
 #define dll_PerfectWardApi "PerfectWardApi.dll"
 #define exe_PwTaskService "PwTaskService.exe"
 #define exe_Installer "PerfectWard API Connector.exe"
+#define exe_NSudo "NSudo.exe"
 
 #define rp "bin"
 
@@ -42,16 +43,17 @@ Source: {#rp}\{#exe_PwTaskService}; DestDir: "{app}"
 Source: {#rp}\{#dll_TaskScheduler}; DestDir: "{app}"
 Source: {#rp}\{#dll_PerfectWardApi}; DestDir: "{app}"
 Source: {#rp}\{#exe_Installer}; DestDir: "{app}"
+Source: {#rp}\{#exe_NSudo}; DestDir: "{app}"
 
 ; Start menu icons
 [Icons]       
-Name: "{group}\API Installer"; Filename: "{app}\{#exe_Installer}"; WorkingDir: "{app}"
+Name: "{group}\API Installer"; Filename: "{app}\{#exe_NSudo}"; WorkingDir: "{app}"; Parameters: "-U:S ""{#exe_Installer}"""; IconFilename: "{app}\{#exe_Installer}"
 Name: "{group}\Log Files"; Filename: "{commonappdata}\PerfectWardAPI"
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"; WorkingDir: "{app}"
 
 ; Run after setup
 [Run]
-Filename: "{app}\{#exe_Installer}"; Flags: runascurrentuser nowait postinstall
+Filename: "{app}\{#exe_NSudo}"; WorkingDir: "{app}"; Parameters: "-U:S ""{#exe_Installer}"""; Flags: runascurrentuser nowait postinstall
 
 ; During uninstall, run installer with "-uninstall" cli arg and wait for termination.
 ; This will terminate PwTask processes, remove debug logs, unset environment variables and remove the scheduled task.
