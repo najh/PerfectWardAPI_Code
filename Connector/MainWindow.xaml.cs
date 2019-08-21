@@ -2,9 +2,12 @@
 using PerfectWardAPI.Api;
 using PerfectWardAPI.Data;
 using System;
+using System.Configuration.Install;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.ServiceProcess;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +23,7 @@ namespace Installer
         private SolidColorBrush bruPwGreen = new SolidColorBrush(Color.FromArgb(255, 0, 175, 80));
         private SolidColorBrush bruError = new SolidColorBrush(Color.FromArgb(255, 174, 0, 42));
 
+        private const string ServiceName = "PwTask";
         private const string TaskName = "PW API";
 
         public MainWindow()
@@ -34,12 +38,11 @@ namespace Installer
                 {
                     PerfectWardAPI.Debug.Log("Uninstall flag received.");
                     PerfectWardAPI.Debug.Close();
+                    PerfectWardAPI.Debug.Uninstall();
                     try
                     {
                         SetEnvironmentVariables(null, null, null, null, null);
-                        foreach (var pi in Process.GetProcessesByName("PwTask")) pi.Kill();
-                        var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\PerfectWardAPI";
-                        foreach (var f in new DirectoryInfo(appDataFolder).GetFiles("*_debug.log")) f.Delete();
+                        ManageService(false);
                         var ts = Microsoft.Win32.TaskScheduler.TaskService.Instance;
                         ts.RootFolder.DeleteTask(TaskName, false);
                     }
@@ -179,8 +182,10 @@ namespace Installer
                 {
                     PerfectWardAPI.Debug.Log("Setting environment variables...");
                     SetEnvironmentVariables(txtEmail.Text, txtAPIToken.Text, txtPxyUser.Text, txtPxyPass.Text, txtConnStr.Text);
-                    var subfolder = new DirectoryInfo(Environment.CurrentDirectory);
-                    var exePath = $"{subfolder.FullName}\\PwTask.exe";
+
+                    ManageService(true);
+
+                    var cmd = $"{Environment.GetFolderPath(Environment.SpecialFolder.System)}\\cmd.exe";
 
                     PerfectWardAPI.Debug.Log("Scheduling task...");
                     var ts = Microsoft.Win32.TaskScheduler.TaskService.Instance;
@@ -188,15 +193,20 @@ namespace Installer
                     var t = ts.AddTask(
                         TaskName,
                         new Microsoft.Win32.TaskScheduler.DailyTrigger(),
-                        new Microsoft.Win32.TaskScheduler.ExecAction(exePath, null, subfolder.FullName)
+                        new Microsoft.Win32.TaskScheduler.ExecAction(cmd, $"/c net start {ServiceName}"),
+                        "NT AUTHORITY\\SYSTEM",
+                        null,
+                        Microsoft.Win32.TaskScheduler.TaskLogonType.ServiceAccount,
+                        "Perfect Ward API Connector Task"
                         );
 
                     MessageBox.Show("The API was connected.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
                     PerfectWardAPI.Debug.Log($"Starting task...");
 
-                    Process.Start(new ProcessStartInfo("PwTask.exe"));
-                    //t.Run();
+                    t.Run();
+
+                    //Process.Start(new ProcessStartInfo(cmd, $"/c net start {ServiceName}"));
 
                     MessageBox.Show("The reporting task has begun and will run in the background.", string.Empty, MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -217,6 +227,33 @@ namespace Installer
             };
         }
 
+        private void ManageService(bool install)
+        {
+            var service = ServiceController.GetServices().FirstOrDefault(x => x.ServiceName == ServiceName);
+            if (service == null == !install) return;
+
+            if (!install)
+            {
+                var cmd = $"{Environment.GetFolderPath(Environment.SpecialFolder.System)}\\cmd.exe";
+                var psi = new ProcessStartInfo(cmd, $"/c net stop {ServiceName}")
+                {
+                    CreateNoWindow = true
+                };
+                Process.Start(psi).WaitForExit();
+            }
+
+            var subfolder = new FileInfo(Assembly.GetExecutingAssembly().FullName).Directory;
+            var servicePath = $"{subfolder.FullName}\\PwTaskService.exe";
+
+            var args = new string[] {
+                install ? "/ShowCallStack" : "/u",
+                "/LogFile=",
+                servicePath
+            };
+
+            ManagedInstallerClass.InstallHelper(args);
+        }
+
         private void SetEnvironmentVariables(string email, string token, string pxyUser, string pxyPass, string connStr)
         {
             EnvironmentVariables.Set(EnvironmentVariables.PerfectWardEmail, email);
@@ -226,6 +263,7 @@ namespace Installer
             EnvironmentVariables.Set(EnvironmentVariables.ProxyUsername, pxyUser);
             EnvironmentVariables.Set(EnvironmentVariables.ProxyPassword, pxyPass);
             EnvironmentVariables.Set(EnvironmentVariables.SQLConnectionString, connStr);
+            EnvironmentVariables.Set(EnvironmentVariables.EventId, "0");
         }
     }
 }

@@ -9,15 +9,16 @@ namespace PerfectWardApi.Api
         public const string PerfectWardToken = "PW_API_TOKEN";
         public const string ProxyUsername = "PW_PXY_USER";
         public const string ProxyPassword = "PW_PXY_PASS";
+        public const string EventId = "PW_EVT_ID";
 
         public static void Set(string variableName, string value)
         {
-            Environment.SetEnvironmentVariable(variableName, value, EnvironmentVariableTarget.User);
+            Environment.SetEnvironmentVariable(variableName, value, EnvironmentVariableTarget.Machine);
         }
 
         public static string Get(string variableName)
         {
-            return Environment.GetEnvironmentVariable(variableName, EnvironmentVariableTarget.User);
+            return Environment.GetEnvironmentVariable(variableName, EnvironmentVariableTarget.Machine);
         }
     }
 }
